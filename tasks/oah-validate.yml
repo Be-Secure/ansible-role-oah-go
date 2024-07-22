@@ -1,0 +1,16 @@
+- name: Validate go installation
+  shell: go version
+  failed_when: false
+  register: go_check
+
+- name: Print message if go is found
+  debug:
+    msg: "Go already exists {{ go_check }}"
+  failed_when: false
+  when: go_check.stdout != ''
+
+- name: Print message if go is not found
+  debug:
+    msg: "Go not found"
+  failed_when: false
+  when: go_check.stdout == ''

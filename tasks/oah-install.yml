@@ -1,0 +1,55 @@
+- name: Check if snap present
+  shell: snap --version
+  failed_when: false
+  register: snap_check
+
+- name: Print message
+  debug:
+    msg: "Snap already present {{ snap_check.stdout }}"
+  when: snap_check.stdout != ''
+
+- name: Install snap
+  become: yes
+  apt:
+    name: snapd
+    state: present
+  when: snap_check.stdout == ''
+
+- name: Check if go exists
+  shell: go version
+  failed_when: false
+  register: go_check
+
+- name: Print message
+  debug:
+    msg: "Go already exists {{ go_check }}"
+  failed_when: false
+  when: go_check.stdout != ''
+
+- name: Install Go
+  become: yes
+  command: snap install --classic --channel="{{ go_version }}"/"{{ go_channel }}" go
+  when: go_check.stdout == ''
+
+- name: Adding paths to .bashrc
+  lineinfile:
+    dest: ~/.bashrc
+    line: "{{ item }}"
+    create: yes
+  loop:
+    - "export GOPATH=$HOME/go"
+    - "export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin"
+  register: lineinfile_result
+
+- name: Exporting vars
+  shell: |
+    export GOPATH=$HOME/go
+    export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
+
+- name: Check if var is set
+  debug:
+    msg: "GOPATH:{{ lookup('env','GOPATH') }}"
+
+- name: Check if var is set
+  debug:
+    msg: "PATH:{{ lookup('env','PATH') }}"
