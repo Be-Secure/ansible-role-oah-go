@@ -1,0 +1,16 @@
+- name: Check if go is available
+  shell: go version
+  failed_when: false
+  register: go_check
+
+- name: Print msg
+  debug:
+    msg: go not installed
+  when: go_check.stdout == ''
+
+- name: Remove Go
+  become: yes
+  shell: |
+    snap remove go
+    rm -rf "{{ lookup('env','GOPATH') }}"
+  when: go_check.stdout != ''

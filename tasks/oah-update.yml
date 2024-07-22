@@ -1,0 +1,5 @@
+- name: Removing existing version
+  include_tasks: "tasks/oah-remove.yml"
+
+- name: Installing lastest version with default Config
+  include_tasks: "tasks/oah-install.yml"
